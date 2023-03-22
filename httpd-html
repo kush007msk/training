@@ -1,0 +1,16 @@
+#!/bin/bash
+
+yum install httpd -y
+systemctl enable httpd
+mkdir /var/www/html/cit/
+echo "<h1>Welcome to CIT Technologies</h1>" > /var/www/html/cit/index.html
+systemctl start httpd 
+
+
+#!/bin/bash
+
+sudo apt install apache2 -y
+sudo systemctl status apache2
+mkdir /var/www/html/cit/
+echo "<h1>Welcome to CIT Technologies</h1>" > /var/www/html/cit/index.html
+systemctl start apache2

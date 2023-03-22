@@ -1,0 +1,165 @@
+Create Ubuntu instance
+
+Install java 8
+----------------
+sudo apt-get install openjdk-8-jdk -y
+
+Install Maven 3.3.9
+---------------------
+wget http://apache-mirror.rbc.ru/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+sudo mkdir -p /usr/local/apache-maven
+sudo mv apache-maven-3.3.9-bin.tar.gz /usr/local/apache-maven
+cd /usr/local/apache-maven
+sudo tar -xzvf apache-maven-3.3.9-bin.tar.gz
+Once this is done add to you environment variables by editing .bashrc:
+nano ~/.bashrc
+
+export M2_HOME=/usr/local/apache-maven/apache-maven-3.3.9
+export M2=$M2_HOME/bin
+export MAVEN_OPTS="-Xms256m -Xmx512m"
+export PATH=$M2:$PATH
+
+then apply it by executing :
+. ~/.bashrc
+
+Refrence: http://javedmandary.blogspot.com/2016/09/install-maven-339-on-ubuntu.html
+----------------------------------------------------------------------------------------
+
+Install jenkins 
+-------------------
+
+To install Jenkins on Ubuntu, follow below set of commands:
+
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | 
+  sudo apt-key add -
+
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
+/etc/apt/sources.list.d/jenkins.list'
+
+sudo apt-get update
+sudo apt-get install jenkins -y
+sudo service jenkins start
+sudo service jenkins status
+
+
+follow this document to install jenkins
+https://www.liquidweb.com/kb/installing-jenkins-on-ubuntu-16-04/ 
+
+If you’re facing with above jenkins installation. Please follow below link
+https://serverfault.com/questions/1034893/installing-jenkins-on-ubuntu-tells-me-package-jenkins-has-no-installation-can
+
+GCP to install jenkins:
+---------------------
+https://askubuntu.com/questions/512867/unable-to-install-recover-jenkins-after-upgrading-from-ubuntu-12-04-to-14-04
+
+
+Sonarqube install:
+--------------------
+
+https://digitalavenue.dev/Install-SonarQube-On-Ubuntu-Debian/
+
+
+  cd /opt
+  sudo curl -O https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.3.0.34182.zip
+  sudo apt-get install unzip
+  sudo unzip sonarqube-8.3.0.34182.zip -d /opt/
+  sudo mv /opt/sonarqube-8.3.0.34182/ /opt/sonarqube
+  cd /opt/sonarqube/
+  sudo groupadd sonar
+  sudo useradd -c "SonarQube - User" -d /opt/sonarqube/ -g sonar sonar
+  sudo chown sonar:sonar /opt/sonarqube/ -R
+  
+  sudo vim /opt/sonarqube/conf/sonar.properties
+  
+  ####Un-comment these lines and modify them as necessary.
+
+   sonar.jdbc.username=admin
+   sonar.jdbc.password=admin
+
+  vim /etc/systemd/system/sonarqube.service
+  
+  ####Add this content into the “sonarqube.service” file.
+
+[Unit]
+Description=SonarQube service
+After=syslog.target network.target
+
+[Service]
+Type=forking
+
+ExecStart=/opt/sonarqube/bin/linux-x86-64/sonar.sh start
+ExecStop=/opt/sonarqube/bin/linux-x86-64/sonar.sh stop
+
+User=sonar
+Group=sonar
+Restart=always
+
+LimitNOFILE=65536
+LimitNPROC=4096
+
+
+[Install]
+WantedBy=multi-user.target
+
+
+  systemctl daemon-reload 
+  systemctl enable sonarqube.service
+  systemctl start sonarqube.service
+  systemctl status -l sonarqube.service
+
+
+Install nexus
+------------------
+
+1) sudo wget https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+2) sudo tar -xvf latest-unix.tar.gz
+3) mv nexus-3.46.0-01 /opt/
+4) mv sonatype-work/ /opt/
+5) cd /opt
+6) mv nexus-3.46.0-01/ nexus
+7) ###Create a user called Nexus####
+     sudo adduser nexus
+
+8) Give permission to Nexus user
+sudo chown -R nexus:nexus /opt/nexus
+sudo chown -R nexus:nexus /opt/sonatype-work
+
+9) sudo vim /opt/nexus/bin/nexus.rc
+    run_as_user="nexus"
+ 
+10)Modify memory settings
+  sudo vim /opt/nexus/bin/nexus.vmoptions
+  change to 512m
+
+11) Configure Nexus to run as a service
+      sudo vim /etc/systemd/system/nexus.service
+       Copy the below content.
+       
+[Unit]
+Description=nexus service
+After=network.target
+[Service]
+Type=forking
+LimitNOFILE=65536
+User=nexus
+Group=nexus
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+User=nexus
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target
+
+12) Now Start Nexus
+     sudo systemctl enable nexus
+     sudo systemctl start nexus
+     sudo systemctl status nexus
+
+13) tail -f /opt/sonatype-work/nexus3/log/nexus.log
+
+https://epma.medium.com/install-sonatype-nexus-3-on-ubuntu-20-04-lts-562f8ba20b98
+
+
+Install Docker
+---------------
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04
