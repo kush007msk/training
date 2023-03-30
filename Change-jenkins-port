@@ -7,3 +7,4 @@ systemctl start jenkins
 systemctl status jenkins
 
 sudo chown -R jenkins:jenkins /var/lib/jenkins
+
